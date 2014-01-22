@@ -122,10 +122,12 @@ blo_h_tables *blo_h_tables_new(int table_size)
 		return this;
 	} else if ((shm_fd = shm_open(shm_path, O_CREAT | O_RDWR, 0644)) > 0) {
 		/* There is no existing SHM segment, but we can make one */
-		ftruncate(shm_fd, all_tables_size);
+		int err = ftruncate(shm_fd, all_tables_size);
 
-		all_tables = mmap(0, all_tables_size, PROT_READ | PROT_WRITE,
-				MAP_SHARED, shm_fd, 0);
+		if (!err) {
+			all_tables = mmap(0, all_tables_size, PROT_READ | PROT_WRITE,
+					MAP_SHARED, shm_fd, 0);
+		}
 		close(shm_fd);
 	}
 #endif
